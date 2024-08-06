@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    environment {
+        AZURE_CLIENT_ID = credentials('azure-client-id')
+        AZURE_CLIENT_SECRET = credentials('azure-client-secret')
+        AZURE_TENANT_ID = credentials('azure-tenant-id')
+        RESOURCE_GROUP = 'my-resource-group'
+        AKS_CLUSTER = 'my-cluster'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Login to Azure') {
+            steps {
+                script {
+                    sh '''
+                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+                    '''
+                }
+            }
+        }
+        
+        stage('Initialize and Apply Terraform') {
+            steps {
+                script {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    sh 'kubectl get pods'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment succeeded'
+        }
+        failure {
+            echo 'Deployment failed'
+        }
+    }
+}
