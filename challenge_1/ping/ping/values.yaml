@@ -84,7 +84,7 @@ nodeAffinity:
   requiredDuringSchedulingIgnoredDuringExecution:
     nodeSelectorTerms:
       - matchExpressions:
-          - key: "nodegroup" ## <key-for-isolated-nodes>
+          - key: "node" ## <key-for-isolated-nodes>
             operator: "NotIn"
             values:
               - "restricted-group" ## <isolated-value>
