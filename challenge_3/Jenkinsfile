@@ -26,6 +26,18 @@ pipeline {
             }
         }
         
+        stage('Get AKS Credentials') {
+            steps {
+                script {
+                    // Obtener las credenciales del clúster AKS y verificar el acceso
+                    sh '''
+                        az aks get-credentials --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER"
+                        kubectl get nodes
+                    '''
+                }
+            }
+        }
+
         stage('Initialize and Apply Terraform') {
             steps {
                 script {
